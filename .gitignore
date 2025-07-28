@@ -1,3 +1,4 @@
 .env
 /datasets
 /models
+/catboost_info

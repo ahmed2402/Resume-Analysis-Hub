@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resume Category Classifier</title>
+</head>
+<body>
+    <h2>Enter Resume Text or Upload PDF</h2>
+    <form method="POST" action="/analyze" enctype="multipart/form-data">
+        <textarea name="resume_text" rows="10" cols="60" placeholder="Paste resume text here..."></textarea><br><br>
+        OR<br><br>
+        <input type="file" name="resume_file" accept=".pdf"><br><br>
+        <input type="submit" value="Analyze">
+    </form>
+</body>
+</html>
