@@ -4,35 +4,11 @@ import time
 import os
 from dotenv import load_dotenv
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key="AIzaSyBgYU8uewGn8chN_T7uIZHSO3vbDXGNW38")
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 categories = {
-    "Java Developer": 20,
-    "Database": 20,
-    "Advocate": 20,
-    "HR": 20,
-    "Data Science": 20,
-    "Automation Testing": 20,
-    "DevOps Engineer": 20,
-    "Testing": 20,
-    "DotNet Developer": 20,
-    "Hadoop": 20,
-    "SAP Developer": 20,
-    "Python Developer": 20,
-    "Health and fitness": 20,
-    "Civil Engineer": 20,
-    "Arts": 20,
-    "Business Analyst": 20,
-    "Sales": 20,
-    "Blockchain": 20,
-    "Mechanical Engineer": 20,
-    "ETL Developer": 20,
-    "Electrical Engineering": 20,
-    "Network Security Engineer": 20,
-    "Web Designing": 20,
-    "Operations Manager": 20,
-    "PMO": 20
+    'Web Developer': 30,
 }
 
 def generate_resumes(category, count=20):
