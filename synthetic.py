@@ -4,11 +4,9 @@ import time
 import os
 from dotenv import load_dotenv
 
-# Step 1: Configure Gemini API
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))  # 🔐 Replace with your Gemini API key
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel('gemini-2.5-flash')
 
-# Step 2: Categories with sample sizes
 categories = {
     "Java Developer": 20,
     "Database": 20,
@@ -37,7 +35,6 @@ categories = {
     "PMO": 20
 }
 
-# Step 3: Generate resumes for a category
 def generate_resumes(category, count=20):
     prompt = f"""Generate {count} synthetic resume texts for the job category '{category}'.
 Each resume should be 4-5 lines long, sound realistic and unique, and include:
@@ -46,7 +43,6 @@ Each resume should be 4-5 lines long, sound realistic and unique, and include:
 - Short experience description
 - Tools or technologies used
 Output them as a numbered list."""
-    
     try:
         response = model.generate_content(prompt)
         return response.text
@@ -54,12 +50,10 @@ Output them as a numbered list."""
         print(f"❌ Error for category '{category}': {e}")
         return ""
 
-# Step 4: Parse Gemini response into list of resumes
 def parse_resumes_to_df(response_text, category):
     lines = response_text.strip().split('\n')
     data = []
     current_resume = ""
-
     for line in lines:
         if line.strip().startswith(tuple(f"{i}." for i in range(1, 200))):
             if current_resume:
@@ -67,30 +61,24 @@ def parse_resumes_to_df(response_text, category):
             current_resume = line.split('.', 1)[1].strip()
         else:
             current_resume += ' ' + line.strip()
-
     if current_resume:
         data.append(current_resume.strip())
-
     df = pd.DataFrame({'Resume': data[:len(data)], 'Category': category})
     return df
 
-# Step 5: Combine all
 all_data = []
 
 for category, count in categories.items():
     print(f"🌀 Generating resumes for: {category} ({count})")
     response_text = generate_resumes(category, count)
-    
     if response_text:
         df = parse_resumes_to_df(response_text, category)
         all_data.append(df)
         print(f"✅ Collected {len(df)} resumes for {category}")
     else:
         print(f"⚠️ Skipped {category} due to error.")
-    
-    time.sleep(2)  # To respect Gemini's rate limits
+    time.sleep(2)
 
-# Step 6: Final DataFrame and Save
 final_df = pd.concat(all_data, ignore_index=True)
 print(f"\n🎉 Total resumes generated: {len(final_df)}")
 
