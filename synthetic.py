@@ -1,9 +1,11 @@
 import google.generativeai as genai
 import pandas as pd
 import time
+import os
+from dotenv import load_dotenv
 
 # Step 1: Configure Gemini API
-genai.configure(api_key="AIzaSyBgYU8uewGn8chN_T7uIZHSO3vbDXGNW38")  # 🔐 Replace with your Gemini API key
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))  # 🔐 Replace with your Gemini API key
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 # Step 2: Categories with sample sizes
