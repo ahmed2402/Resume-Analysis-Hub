@@ -1,12 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Prediction Result</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - Resume Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <h2>Predicted Category: {{ category }}</h2>
-    <h3>Resume Text:</h3>
-    <p>{{ text }}</p>
-    <a href="/">Try Another</a>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-bar"></i> Analysis Results</h1>
+            <p>Your resume has been analyzed successfully!</p>
+        </div>
+
+        <div class="results-section">
+            {% if predictions and predictions|length > 0 %}
+            <div class="top-prediction">
+                <div class="prediction-card primary">
+                    <div class="rank-badge">
+                        <i class="fas fa-trophy"></i>
+                        <span>1st</span>
+                    </div>
+                    <div class="prediction-content">
+                        <h3>{{ predictions[0].category }}</h3>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: {{ predictions[0].confidence }}%"></div>
+                        </div>
+                        <p class="confidence-score">{{ predictions[0].confidence }}% Match</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if predictions|length > 1 %}
+            <div class="other-predictions">
+                <h3>Other Potential Categories:</h3>
+                <div class="prediction-grid">
+                    {% if predictions|length > 1 %}
+                    <div class="prediction-card secondary">
+                        <div class="rank-badge">
+                            <i class="fas fa-medal"></i>
+                            <span>2nd</span>
+                        </div>
+                        <div class="prediction-content">
+                            <h4>{{ predictions[1].category }}</h4>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: {{ predictions[1].confidence }}%"></div>
+                            </div>
+                            <p class="confidence-score">{{ predictions[1].confidence }}% Match</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if predictions|length > 2 %}
+                    <div class="prediction-card secondary">
+                        <div class="rank-badge">
+                            <i class="fas fa-award"></i>
+                            <span>3rd</span>
+                        </div>
+                        <div class="prediction-content">
+                            <h4>{{ predictions[2].category }}</h4>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: {{ predictions[2].confidence }}%"></div>
+                            </div>
+                            <p class="confidence-score">{{ predictions[2].confidence }}% Match</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="error-message">
+                <h3>No predictions available</h3>
+                <p>Unable to analyze the resume. Please try again with a different file or text.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="actions">
+            <a href="/" class="btn-primary">
+                <i class="fas fa-upload"></i>
+                Analyze Another Resume
+            </a>
+        </div>
+
+        {% if text %}
+        <div class="processed-text-section">
+            <details>
+                <summary>
+                    <i class="fas fa-eye"></i>
+                    View Processed Text
+                </summary>
+                <div class="processed-text">
+                    <p>{{ text }}</p>
+                </div>
+            </details>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Add animation to confidence bars
+        document.addEventListener('DOMContentLoaded', function() {
+            const confidenceBars = document.querySelectorAll('.confidence-fill');
+            confidenceBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+    </script>
 </body>
 </html>

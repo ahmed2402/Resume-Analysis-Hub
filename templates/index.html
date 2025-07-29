@@ -1,15 +1,366 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Category Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <h2>Enter Resume Text or Upload PDF</h2>
-    <form method="POST" action="/analyze" enctype="multipart/form-data">
-        <textarea name="resume_text" rows="10" cols="60" placeholder="Paste resume text here..."></textarea><br><br>
-        OR<br><br>
-        <input type="file" name="resume_file" accept=".pdf"><br><br>
-        <input type="submit" value="Analyze">
-    </form>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-file-alt"></i> Resume Category Classifier</h1>
+            <p>Upload your resume PDF to get AI-powered category predictions</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-content">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h3>Drag & Drop your PDF here</h3>
+                    <p>or</p>
+                    <label for="fileInput" class="upload-btn">
+                        <i class="fas fa-folder-open"></i>
+                        Choose File
+                    </label>
+                    <input type="file" id="fileInput" name="resume_file" accept=".pdf" style="display: none;">
+                    <p class="file-info">Supported format: PDF only</p>
+                </div>
+            </div>
+
+            <div class="text-input-section">
+                <h3><i class="fas fa-keyboard"></i> Or paste resume text directly</h3>
+                <textarea name="resume_text" id="resumeText" rows="8" placeholder="Paste your resume text here..."></textarea>
+            </div>
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>{{ error }}</p>
+            </div>
+            {% endif %}
+
+            <button type="button" id="analyzeBtn" class="analyze-btn" disabled>
+                <i class="fas fa-magic"></i>
+                Analyze Resume
+            </button>
+        </div>
+
+        <div class="loading-section" id="loadingSection" style="display: none;">
+            <div class="spinner"></div>
+            <p>Analyzing your resume...</p>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loadingSection = document.getElementById('loadingSection');
+        const resumeText = document.getElementById('resumeText');
+
+        // Add page load animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate elements on page load
+            const elements = document.querySelectorAll('.upload-section, .text-input-section, .analyze-btn');
+            elements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    element.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            uploadArea.classList.add('highlight');
+            // Add ripple effect
+            createRipple(e, uploadArea);
+        }
+
+        function unhighlight(e) {
+            uploadArea.classList.remove('highlight');
+        }
+
+        // Create ripple effect
+        function createRipple(event, element) {
+            const ripple = document.createElement('span');
+            const rect = element.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            element.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type === 'application/pdf') {
+                    fileInput.files = files;
+                    const fileName = file.name;
+                    const uploadContent = uploadArea.querySelector('.upload-content h3');
+                    
+                    // Animate text change
+                    uploadContent.style.transform = 'scale(0.8)';
+                    uploadContent.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        uploadContent.textContent = `Selected: ${fileName}`;
+                        uploadContent.style.transform = 'scale(1)';
+                        uploadContent.style.opacity = '1';
+                        uploadArea.classList.add('file-selected');
+                        
+                        // Add success animation
+                        uploadArea.style.animation = 'successPulse 0.6s ease-out';
+                        setTimeout(() => {
+                            uploadArea.style.animation = '';
+                        }, 600);
+                    }, 200);
+                    
+                    checkInputs();
+                } else {
+                    // Show error animation
+                    uploadArea.style.animation = 'shake 0.5s ease-in-out';
+                    setTimeout(() => {
+                        uploadArea.style.animation = '';
+                    }, 500);
+                    alert('Please select a PDF file only.');
+                }
+            }
+        }
+
+        resumeText.addEventListener('input', checkInputs);
+
+        // Add keyboard support for Enter key
+        resumeText.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!analyzeBtn.disabled) {
+                    analyzeBtn.click();
+                }
+            }
+        });
+
+        // Also allow Enter key on the upload area
+        uploadArea.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (!analyzeBtn.disabled) {
+                    analyzeBtn.click();
+                }
+            }
+        });
+
+        function checkInputs() {
+            const hasFile = fileInput.files.length > 0;
+            const hasText = resumeText.value.trim().length > 0;
+            const shouldEnable = hasFile || hasText;
+            
+            if (shouldEnable && analyzeBtn.disabled) {
+                // Animate button enable
+                analyzeBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.style.transform = 'scale(1)';
+                }, 150);
+            } else if (!shouldEnable && !analyzeBtn.disabled) {
+                analyzeBtn.disabled = true;
+            }
+        }
+
+        analyzeBtn.addEventListener('click', function() {
+            // Prevent multiple clicks
+            if (analyzeBtn.disabled) return;
+            
+            // Validate inputs
+            const hasFile = fileInput.files.length > 0;
+            const hasText = resumeText.value.trim().length > 0;
+            
+            if (!hasFile && !hasText) {
+                // Show error animation
+                analyzeBtn.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    analyzeBtn.style.animation = '';
+                }, 500);
+                alert('Please upload a PDF file or enter resume text.');
+                return;
+            }
+            
+            // Disable button and show loading
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+            
+            const formData = new FormData();
+            
+            if (hasFile) {
+                formData.append('resume_file', fileInput.files[0]);
+            }
+            
+            if (hasText) {
+                formData.append('resume_text', resumeText.value.trim());
+            }
+
+            // Show loading section with fade effect
+            const uploadSection = document.querySelector('.upload-section');
+            uploadSection.style.transition = 'all 0.5s ease';
+            uploadSection.style.opacity = '0';
+            uploadSection.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                uploadSection.style.display = 'none';
+                loadingSection.style.display = 'block';
+                loadingSection.style.opacity = '0';
+                loadingSection.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    loadingSection.style.transition = 'all 0.5s ease';
+                    loadingSection.style.opacity = '1';
+                    loadingSection.style.transform = 'translateY(0)';
+                }, 50);
+            }, 500);
+
+            // Send request
+            fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Replace the entire page content with the results
+                document.body.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Show error message with animation
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-toast';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> An error occurred while analyzing the resume. Please try again.';
+                document.body.appendChild(errorDiv);
+                
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+                
+                // Reset UI state
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<i class="fas fa-magic"></i> Analyze Resume';
+                uploadSection.style.display = 'block';
+                loadingSection.style.display = 'none';
+                
+                setTimeout(() => {
+                    uploadSection.style.opacity = '1';
+                    uploadSection.style.transform = 'translateY(0)';
+                }, 50);
+            });
+        });
+
+        // Add hover effects for better interactivity
+        uploadArea.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+
+        uploadArea.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('file-selected')) {
+                this.style.transform = 'scale(1)';
+            }
+        });
+
+        // Add CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(102, 126, 234, 0.3);
+                transform: scale(0);
+                animation: ripple-animation 0.6s linear;
+                pointer-events: none;
+            }
+            
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            .error-toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #dc3545;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideInRight 0.3s ease-out;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
