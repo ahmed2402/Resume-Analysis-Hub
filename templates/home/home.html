@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analysis Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='shared.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home/home.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="home-container">
+        <div class="home-header fade-in">
+            <h1><i class="fas fa-brain"></i> Resume Analysis Hub</h1>
+            <p>Choose your analysis tool to get AI-powered insights for your career journey</p>
+        </div>
+
+        <div class="buttons-container">
+            <a href="{{ url_for('resume_category') }}" class="feature-button resume-button fade-in">
+                <i class="fas fa-file-alt button-icon resume-icon"></i>
+                <div class="button-title">Resume Category Predictor</div>
+                <div class="button-description">
+                    Upload your resume and get AI-powered category predictions to understand your professional profile
+                </div>
+            </a>
+
+            <a href="{{ url_for('jd_score') }}" class="feature-button jd-button fade-in">
+                <i class="fas fa-chart-line button-icon jd-icon"></i>
+                <div class="button-title">Job Description Score</div>
+                <div class="button-description">
+                    Calculate compatibility scores between your resume and job descriptions for better job matching
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add smooth scrolling and enhance user experience
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.feature-button');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Add click animation
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

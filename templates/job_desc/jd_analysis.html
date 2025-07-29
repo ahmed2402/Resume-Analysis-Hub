@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Description Score Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='shared.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='job_desc/jd_analysis.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="jd-container">
+        <div class="jd-header">
+            <h1><i class="fas fa-chart-line"></i> Job Description Score Calculator</h1>
+            <p>Compare your resume with job descriptions to find the perfect match</p>
+        </div>
+
+        <div class="jd-content">
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('analyze_jd') }}" enctype="multipart/form-data">
+                <div class="input-sections">
+                    <!-- Resume Section -->
+                    <div class="input-section">
+                        <h3><i class="fas fa-file-alt"></i> Your Resume</h3>
+                        
+                        <div class="upload-area" id="resumeUploadArea">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <h4>Upload Resume PDF</h4>
+                            <p>or paste text below</p>
+                            <input type="file" name="resume_file" accept=".pdf" style="display: none;" id="resumeFile">
+                        </div>
+                        
+                        <textarea name="resume_text" class="text-input" placeholder="Paste your resume text here..."></textarea>
+                    </div>
+
+                    <!-- Job Description Section -->
+                    <div class="input-section">
+                        <h3><i class="fas fa-briefcase"></i> Job Description</h3>
+                        
+                        <div class="upload-area" id="jdUploadArea">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <h4>Upload Job Description PDF</h4>
+                            <p>or paste text below</p>
+                            <input type="file" name="jd_file" accept=".pdf" style="display: none;" id="jdFile">
+                        </div>
+                        
+                        <textarea name="jd_text" class="text-input" placeholder="Paste the job description text here..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="analyze-btn">
+                    <i class="fas fa-magic"></i>
+                    Calculate Match Score
+                </button>
+            </form>
+
+            {% if score is defined %}
+            <div class="result-section show-result" id="resultSection">
+                <div class="score-display">
+                    <div class="score-value">{{ score }}%</div>
+                    <div class="match-level" style="color: {{ match_color }};">{{ match_level }}</div>
+                    <div class="score-description">
+                        {% if score >= 80 %}
+                            Excellent match! Your resume aligns very well with this job description.
+                        {% elif score >= 60 %}
+                            Good match! Your resume has strong alignment with the job requirements.
+                        {% elif score >= 40 %}
+                            Fair match. Consider tailoring your resume to better match the job description.
+                        {% else %}
+                            Poor match. You may want to focus on positions that better align with your experience.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <a href="{{ url_for('home') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // File upload functionality
+        const resumeUploadArea = document.getElementById('resumeUploadArea');
+        const jdUploadArea = document.getElementById('jdUploadArea');
+        const resumeFile = document.getElementById('resumeFile');
+        const jdFile = document.getElementById('jdFile');
+
+        // Resume upload
+        resumeUploadArea.addEventListener('click', () => resumeFile.click());
+        resumeFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                resumeUploadArea.innerHTML = `
+                    <i class="fas fa-check-circle upload-icon" style="color: #28a745;"></i>
+                    <h4>File Selected</h4>
+                    <p>${e.target.files[0].name}</p>
+                `;
+            }
+        });
+
+        // JD upload
+        jdUploadArea.addEventListener('click', () => jdFile.click());
+        jdFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                jdUploadArea.innerHTML = `
+                    <i class="fas fa-check-circle upload-icon" style="color: #28a745;"></i>
+                    <h4>File Selected</h4>
+                    <p>${e.target.files[0].name}</p>
+                `;
+            }
+        });
+
+        // Drag and drop functionality
+        [resumeUploadArea, jdUploadArea].forEach(area => {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.add('highlight'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                area.addEventListener(eventName, () => area.classList.remove('highlight'), false);
+            });
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    </script>
+</body>
+</html> 

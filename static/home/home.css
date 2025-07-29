@@ -1,0 +1,244 @@
+/* Home Page Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    color: #333;
+}
+
+.home-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.home-header {
+    text-align: center;
+    margin-bottom: 60px;
+    color: white;
+}
+
+.home-header h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.home-header p {
+    font-size: 1.3rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.buttons-container {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 800px;
+}
+
+.feature-button {
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 20px;
+    padding: 40px 30px;
+    width: 300px;
+    text-decoration: none;
+    color: #333;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-button:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    background: rgba(255, 255, 255, 1);
+}
+
+.feature-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+}
+
+.feature-button:hover::before {
+    left: 100%;
+}
+
+.button-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.resume-icon {
+    color: #667eea;
+}
+
+.jd-icon {
+    color: #764ba2;
+}
+
+.button-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.button-description {
+    font-size: 1rem;
+    color: #666;
+    line-height: 1.5;
+}
+
+.resume-button {
+    border-left: 5px solid #667eea;
+}
+
+.jd-button {
+    border-left: 5px solid #764ba2;
+}
+
+@media (max-width: 768px) {
+    .home-header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .buttons-container {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .feature-button {
+        width: 280px;
+        padding: 30px 20px;
+    }
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+.fade-in:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.fade-in:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Additional animations for better UX */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Enhanced button animations */
+.feature-button {
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+.resume-button {
+    animation-delay: 0.2s;
+}
+
+.jd-button {
+    animation-delay: 0.4s;
+}
+
+/* Hover effects with enhanced animations */
+.feature-button:hover .button-icon {
+    animation: pulse 1s ease-in-out;
+}
+
+.feature-button:hover .button-title {
+    color: #667eea;
+    transition: color 0.3s ease;
+}
+
+/* Responsive enhancements */
+@media (max-width: 768px) {
+    .home-header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .home-header p {
+        font-size: 1.1rem;
+    }
+    
+    .buttons-container {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .feature-button {
+        width: 280px;
+        padding: 30px 20px;
+    }
+    
+    .button-icon {
+        font-size: 3rem;
+    }
+    
+    .button-title {
+        font-size: 1.3rem;
+    }
+} 
