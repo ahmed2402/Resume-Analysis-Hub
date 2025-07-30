@@ -4,7 +4,7 @@ import time
 import os
 from dotenv import load_dotenv
 
-genai.configure(api_key="AIzaSyBgYU8uewGn8chN_T7uIZHSO3vbDXGNW38")
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 categories = {

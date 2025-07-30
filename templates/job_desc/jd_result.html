@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Match Results - Resume Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='shared.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='job_desc/jd_analysis.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .result-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .result-header h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .score-value {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .match-level {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .match-details {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .match-details h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .match-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .match-details li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .match-details li:last-child {
+            border-bottom: none;
+        }
+
+        .match-details i {
+            color: #28a745;
+            width: 20px;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #6c757d;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .result-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .score-value {
+                font-size: 3rem;
+            }
+
+            .actions {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn-secondary {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="jd-container">
+        <div class="result-container">
+            <div class="result-header">
+                <h1><i class="fas fa-chart-line"></i> Job Match Analysis Results</h1>
+                <p>Your resume has been compared with the job description</p>
+            </div>
+
+            <div class="score-display">
+                <div class="score-value">{{ score }}%</div>
+                <div class="match-level" style="color: {{ match_color }};">{{ match_level }}</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ score }}%"></div>
+                </div>
+                <div class="score-description">
+                    {% if score >= 80 %}
+                        Excellent match! Your resume aligns very well with this job description. You're a strong candidate for this position.
+                    {% elif score >= 60 %}
+                        Good match! Your resume has strong alignment with the job requirements. Consider applying for this position.
+                    {% elif score >= 40 %}
+                        Fair match. Consider tailoring your resume to better match the job description for improved chances.
+                    {% else %}
+                        Poor match. You may want to focus on positions that better align with your experience and skills.
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="match-details">
+                <h3><i class="fas fa-info-circle"></i> Match Analysis Details</h3>
+                <ul>
+                    {% if score >= 80 %}
+                        <li><i class="fas fa-check-circle"></i> High keyword alignment between resume and job description</li>
+                        <li><i class="fas fa-check-circle"></i> Strong skill match with required qualifications</li>
+                        <li><i class="fas fa-check-circle"></i> Excellent fit for the role requirements</li>
+                    {% elif score >= 60 %}
+                        <li><i class="fas fa-check-circle"></i> Good keyword alignment with some areas for improvement</li>
+                        <li><i class="fas fa-check-circle"></i> Strong foundation of required skills</li>
+                        <li><i class="fas fa-info-circle"></i> Consider highlighting relevant experience more prominently</li>
+                    {% elif score >= 40 %}
+                        <li><i class="fas fa-exclamation-triangle"></i> Moderate keyword alignment</li>
+                        <li><i class="fas fa-info-circle"></i> Some skills match but may need enhancement</li>
+                        <li><i class="fas fa-lightbulb"></i> Consider adding more relevant keywords and experience</li>
+                    {% else %}
+                        <li><i class="fas fa-times-circle"></i> Low keyword alignment with job requirements</li>
+                        <li><i class="fas fa-exclamation-triangle"></i> Limited skill match with position needs</li>
+                        <li><i class="fas fa-arrow-right"></i> Consider targeting positions that better match your background</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="actions">
+                <a href="{{ url_for('jd_score') }}" class="btn-primary">
+                    <i class="fas fa-redo"></i>
+                    Analyze Another Job
+                </a>
+                <a href="{{ url_for('home') }}" class="btn-secondary">
+                    <i class="fas fa-home"></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animate progress bar on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressFill = document.querySelector('.progress-fill');
+            const width = progressFill.style.width;
+            progressFill.style.width = '0%';
+            setTimeout(() => {
+                progressFill.style.width = width;
+            }, 500);
+        });
+    </script>
+</body>
+</html> 

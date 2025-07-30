@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, send_file
 import joblib
 import PyPDF2
+import pdfplumber
 import os
 from werkzeug.utils import secure_filename
 from nltk.tokenize import word_tokenize
@@ -20,14 +21,18 @@ nltk.download('punkt_tab')
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
+# Create upload directory if it doesn't exist
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
 rf = joblib.load("models/rf.pkl")
 tf_idf = joblib.load("models/tf_idf.pkl")
 le = joblib.load("models/le.pkl")
 
-# For JD analysis, we'll create a fresh TF-IDF vectorizer each time
-# since we only have 2 documents (resume and JD)
 
 def preprocess_text(text):
+    print(f"Preprocessing text of length: {len(text)}")
+    
     # Convert to lowercase
     text = text.lower()
     text = re.sub('http\\S+\\s*', ' ', text)
@@ -37,22 +42,49 @@ def preprocess_text(text):
     text = re.sub('[^a-zA-Z0-9]+', ' ', text)
     text = re.sub(' +', ' ', text)
     
+    print(f"After regex cleaning, length: {len(text)}")
+    
     tokens = word_tokenize(text)
+    print(f"After tokenization, tokens: {len(tokens)}")
     
     stop_words = set(stopwords.words('english'))
     tokens = [word for word in tokens if word not in stop_words]
+    print(f"After stopword removal, tokens: {len(tokens)}")
     
     lemmatizer = WordNetLemmatizer()
     tokens = [lemmatizer.lemmatize(word) for word in tokens]
-    return ' '.join(tokens)
+    print(f"After lemmatization, tokens: {len(tokens)}")
+    
+    result = ' '.join(tokens)
+    print(f"Final processed text length: {len(result)}")
+    return result
 
 def extract_text_from_pdf(file_path):
-    text = ""
-    with open(file_path, 'rb') as f:
-        reader = PyPDF2.PdfReader(f)
-        for page in reader.pages:
-            text += page.extract_text()
-    return text
+    try:
+        text = ""
+        with open(file_path, 'rb') as f:
+            reader = PyPDF2.PdfReader(f)
+            for page in reader.pages:
+                text += page.extract_text()
+        return text
+    except Exception as e:
+        return f"[Error extracting text: {str(e)}]"
+
+def extract_text_from_pdf_jd(file_path):
+    try:
+        text = ""
+        with open(file_path, 'rb') as f:
+            reader = PyPDF2.PdfReader(f)
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text
+        if not text:
+            return "[No text extracted. PDF may be scanned or encrypted.]"
+        return text.strip()
+    except Exception as e:
+        return f"[Error extracting text: {str(e)}]"
+
 
 def validate_input(text):
     if len(text) < 100:
@@ -71,9 +103,10 @@ def validate_input(text):
         if re.search(pattern, text.lower()):
             return False, "Please provide meaningful Resume instead of random characters."
     
-    return True, ""  # Return True if all validations pass
+    return True, "" 
 
 def calculate_similarity(resume_text, jd_text):
+    
     # Preprocess both texts
     resume_processed = preprocess_text(resume_text)
     jd_processed = preprocess_text(jd_text)
@@ -82,15 +115,12 @@ def calculate_similarity(resume_text, jd_text):
     if len(resume_processed.strip()) < 10 or len(jd_processed.strip()) < 10:
         return 0.0
     
-    # Create a fresh TF-IDF vectorizer for this comparison
     jd_tfidf = TfidfVectorizer(max_features=5000, stop_words='english', min_df=1, max_df=1.0)
     
     try:
-        # Create TF-IDF vectors
         texts = [resume_processed, jd_processed]
         vectors = jd_tfidf.fit_transform(texts)
         
-        # Calculate cosine similarity
         similarity = cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
         return round(similarity * 100, 2)
     except ValueError as e:
@@ -130,7 +160,7 @@ def analyze_resume():
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(file_path)
                 resume_text = extract_text_from_pdf(file_path)
-                os.remove(file_path)  # Clean up
+                os.remove(file_path)  
             else:
                 return render_template('resume_classifier/index.html', error="Please upload a PDF file")
         else:
@@ -170,54 +200,69 @@ def jd_score():
 
 @app.route('/analyze-jd', methods=['POST'])
 def analyze_jd():
-    resume_text = ""
+    jd_resume_text = ""
     jd_text = ""
     
-        # Get resume text
-    if 'resume_text' in request.form and request.form['resume_text'].strip():
-        resume_text = request.form['resume_text']
-        # is_valid, error_message = validate_input(resume_text)
-        # if not is_valid:
-        #     return render_template('job_desc/jd_analysis.html', error=error_message)     
-    elif 'resume_file' in request.files:
-        file = request.files['resume_file']
+
+    
+    # Handle resume input (text or file)
+    if 'jd_resume_text' in request.form and request.form['jd_resume_text'].strip():
+        jd_resume_text = request.form['jd_resume_text'].strip()
+    elif 'jd_resume_file' in request.files:
+        file = request.files['jd_resume_file']
         if file and file.filename:
             if file.filename.endswith('.pdf'):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-                resume_text = extract_text_from_pdf(file_path)
-                os.remove(file_path)  # Clean up
+                try:
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    jd_resume_text = extract_text_from_pdf_jd(file_path)
+                    os.remove(file_path)
+                except Exception as e:
+                    return render_template('job_desc/jd_analysis.html', error=f"Error processing resume file: {str(e)}")
             else:
                 return render_template('job_desc/jd_analysis.html', error="Please upload a PDF file for resume")
+        else:
+            return render_template('job_desc/jd_analysis.html', error="Please provide resume text or upload a file")
+    else:
+        return render_template('job_desc/jd_analysis.html', error="Please provide resume text or upload a file")
     
-    # Get job description text
+    # Handle job description input (text or file)
     if 'jd_text' in request.form and request.form['jd_text'].strip():
-        jd_text = request.form['jd_text']
-        # is_valid, error_message = validate_input(jd_text)
-        # if not is_valid:
-        #     return render_template('job_desc/jd_analysis.html', error=error_message)     
+        jd_text = request.form['jd_text'].strip()
     elif 'jd_file' in request.files:
         file = request.files['jd_file']
         if file and file.filename:
             if file.filename.endswith('.pdf'):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-                jd_text = extract_text_from_pdf(file_path)
-                os.remove(file_path)  # Clean up
+                try:
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    jd_text = extract_text_from_pdf_jd(file_path)
+                    os.remove(file_path)
+                except Exception as e:
+                    return render_template('job_desc/jd_analysis.html', error=f"Error processing job description file: {str(e)}")
             else:
                 return render_template('job_desc/jd_analysis.html', error="Please upload a PDF file for job description")
+        else:
+            return render_template('job_desc/jd_analysis.html', error="Please provide job description text or upload a file")
+    else:
+        return render_template('job_desc/jd_analysis.html', error="Please provide job description text or upload a file")
     
-    # Check both inputs after processing
-    # if not resume_text:
-    #     return render_template('job_desc/jd_analysis.html', error="Please provide resume text or upload a resume file")
-        
-    # if not jd_text:
-    #     return render_template('job_desc/jd_analysis.html', error="Please provide job description text or upload a job description file")
+    # Validate that we have both inputs
+    if not jd_resume_text or not jd_text:
+        return render_template('job_desc/jd_analysis.html', error="Both resume and job description are required")
     
-    # Calculate similarity score
-    score = calculate_similarity(resume_text, jd_text)
+    # Check if extracted text is meaningful
+    if jd_resume_text.startswith("[No text extracted") or jd_resume_text.startswith("[Error extracting"):
+        return render_template('job_desc/jd_analysis.html', error="Could not extract text from resume PDF. Please try a different file or paste text directly.")
+    
+    if jd_text.startswith("[No text extracted") or jd_text.startswith("[Error extracting"):
+        return render_template('job_desc/jd_analysis.html', error="Could not extract text from job description PDF. Please try a different file or paste text directly.")
+    
+
+    
+    score = calculate_similarity(jd_resume_text, jd_text)
     
     # Determine match level
     if score >= 80:
@@ -233,7 +278,7 @@ def analyze_jd():
         match_level = "Poor Match"
         match_color = "#dc3545"
     
-    return render_template('job_desc/jd_analysis.html', 
+    return render_template('job_desc/jd_result.html', 
                          score=round(score, 2), 
                          match_level=match_level, 
                          match_color=match_color)
