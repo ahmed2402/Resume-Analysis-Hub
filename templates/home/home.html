@@ -34,21 +34,6 @@
         </div>
     </div>
 
-    <script>
-        // Add smooth scrolling and enhance user experience
-        document.addEventListener('DOMContentLoaded', function() {
-            const buttons = document.querySelectorAll('.feature-button');
-            
-            buttons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Add click animation
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 150);
-                });
-            });
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 </body>
 </html> 

@@ -37,10 +37,6 @@
                         </div>
                         <!-- Fallback file input (hidden but accessible) -->
                         <input type="file" name="jd_resume_file" accept=".pdf" id="resumeFileFallback" style="display: none;">
-                        <!-- Test button for debugging -->
-                        <button type="button" onclick="document.getElementById('resumeFileFallback').click()" style="margin: 5px 0; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px;">
-                            Test Resume Upload
-                        </button>
                         
                         <textarea name="jd_resume_text" class="text-input" placeholder="Paste your resume text here..."></textarea>
                     </div>
@@ -57,10 +53,6 @@
                         </div>
                         <!-- Fallback file input (hidden but accessible) -->
                         <input type="file" name="jd_file" accept=".pdf" id="jdFileFallback" style="display: none;">
-                        <!-- Test button for debugging -->
-                        <button type="button" onclick="document.getElementById('jdFileFallback').click()" style="margin: 5px 0; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px;">
-                            Test JD Upload
-                        </button>
                         
                         <textarea name="jd_text" class="text-input" placeholder="Paste the job description text here..."></textarea>
                     </div>
@@ -81,113 +73,6 @@
         </div>
     </div>
 
-    <script>
-        // File upload functionality
-        const resumeUploadArea = document.getElementById('resumeUploadArea');
-        const jdUploadArea = document.getElementById('jdUploadArea');
-        const resumeFile = document.getElementById('resumeFile');
-        const jdFile = document.getElementById('jdFile');
-        const resumeFileFallback = document.getElementById('resumeFileFallback');
-        const jdFileFallback = document.getElementById('jdFileFallback');
-
-        // Resume file change handler
-        resumeFile.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                resumeUploadArea.innerHTML = `
-                    <i class="fas fa-check-circle upload-icon" style="color: #28a745;"></i>
-                    <h4>File Selected</h4>
-                    <p>${file.name}</p>
-                `;
-                // Also set the fallback input
-                resumeFileFallback.files = e.target.files;
-            }
-        });
-
-        // Fallback resume file input
-        resumeFileFallback.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                resumeUploadArea.innerHTML = `
-                    <i class="fas fa-check-circle upload-icon" style="color: #28a745;"></i>
-                    <h4>File Selected</h4>
-                    <p>${file.name}</p>
-                `;
-                // Also set the main input
-                resumeFile.files = e.target.files;
-            }
-        });
-
-        // JD file change handler
-        jdFile.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                jdUploadArea.innerHTML = `
-                    <i class="fas fa-check-circle upload-icon" style="color: #28a745;"></i>
-                    <h4>File Selected</h4>
-                    <p>${file.name}</p>
-                `;
-                // Also set the fallback input
-                jdFileFallback.files = e.target.files;
-            }
-        });
-
-        // Fallback JD file input
-        jdFileFallback.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                jdUploadArea.innerHTML = `
-                    <i class="fas fa-check-circle upload-icon" style="color: #28a745;"></i>
-                    <h4>File Selected</h4>
-                    <p>${file.name}</p>
-                `;
-                // Also set the main input
-                jdFile.files = e.target.files;
-            }
-        });
-
-        // Drag and drop functionality
-        [resumeUploadArea, jdUploadArea].forEach(area => {
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                area.addEventListener(eventName, preventDefaults, false);
-            });
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                area.addEventListener(eventName, () => area.classList.add('highlight'), false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                area.addEventListener(eventName, () => area.classList.remove('highlight'), false);
-            });
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        // Form submission validation
-        document.getElementById('jdForm').addEventListener('submit', function(e) {
-            const resumeFileInput = document.getElementById('resumeFile');
-            const jdFileInput = document.getElementById('jdFile');
-            const resumeTextInput = document.querySelector('textarea[name="jd_resume_text"]');
-            const jdTextInput = document.querySelector('textarea[name="jd_text"]');
-            
-            const hasResumeInput = (resumeFileInput.files.length > 0) || (resumeTextInput.value.trim().length > 0);
-            const hasJDInput = (jdFileInput.files.length > 0) || (jdTextInput.value.trim().length > 0);
-            
-            if (!hasResumeInput) {
-                e.preventDefault();
-                alert('Please provide resume text or upload a resume file.');
-                return false;
-            }
-            
-            if (!hasJDInput) {
-                e.preventDefault();
-                alert('Please provide job description text or upload a job description file.');
-                return false;
-            }
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/jd_analysis.js') }}"></script>
 </body>
 </html> 

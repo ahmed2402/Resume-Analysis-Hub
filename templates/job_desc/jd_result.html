@@ -243,16 +243,6 @@
         </div>
     </div>
 
-    <script>
-        // Animate progress bar on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const progressFill = document.querySelector('.progress-fill');
-            const width = progressFill.style.width;
-            progressFill.style.width = '0%';
-            setTimeout(() => {
-                progressFill.style.width = width;
-            }, 500);
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/jd_result.js') }}"></script>
 </body>
 </html> 
