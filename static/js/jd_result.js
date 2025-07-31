@@ -16,7 +16,7 @@ function formatAnalysisText(text) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Animate progress bar
+    // Animate progress bar on page load
     const progressFill = document.querySelector('.progress-fill');
     const width = progressFill.style.width;
     progressFill.style.width = '0%';

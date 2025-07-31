@@ -25,6 +25,7 @@
     font-size: 1.1rem;
 }
 
+/* --- Score Display Animation & Effects --- */
 .score-display {
     text-align: center;
     margin-bottom: 3rem;
@@ -42,10 +43,19 @@
 }
 
 .match-level {
-    font-size: 1.5rem;
+    margin: 0 auto 1rem auto;
+    display: inline-block;
+    padding: 6px 20px 9px 20px;
+    border-radius: 2rem;
+    width: fit-content;
+    font-size: 1rem;
     font-weight: 600;
     margin-bottom: 1rem;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes fadeInMatch {
+    to { opacity: 1; }
 }
 
 /* Analysis Sections Styles */
