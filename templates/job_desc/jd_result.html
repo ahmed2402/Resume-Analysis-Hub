@@ -23,40 +23,16 @@
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: {{ score }}%"></div>
                 </div>
-                <div class="score-description">
-                    {% if score >= 80 %}
-                        Excellent match! Your resume aligns very well with this job description. You're a strong candidate for this position.
-                    {% elif score >= 60 %}
-                        Good match! Your resume has strong alignment with the job requirements. Consider applying for this position.
-                    {% elif score >= 40 %}
-                        Fair match. Consider tailoring your resume to better match the job description for improved chances.
-                    {% else %}
-                        Poor match. You may want to focus on positions that better align with your experience and skills.
-                    {% endif %}
-                </div>
             </div>
 
-            <div class="match-details">
-                <h3><i class="fas fa-info-circle"></i> Match Analysis Details</h3>
-                <ul>
-                    {% if score >= 80 %}
-                        <li><i class="fas fa-check-circle"></i> High keyword alignment between resume and job description</li>
-                        <li><i class="fas fa-check-circle"></i> Strong skill match with required qualifications</li>
-                        <li><i class="fas fa-check-circle"></i> Excellent fit for the role requirements</li>
-                    {% elif score >= 60 %}
-                        <li><i class="fas fa-check-circle"></i> Good keyword alignment with some areas for improvement</li>
-                        <li><i class="fas fa-check-circle"></i> Strong foundation of required skills</li>
-                        <li><i class="fas fa-info-circle"></i> Consider highlighting relevant experience more prominently</li>
-                    {% elif score >= 40 %}
-                        <li><i class="fas fa-exclamation-triangle"></i> Moderate keyword alignment</li>
-                        <li><i class="fas fa-info-circle"></i> Some skills match but may need enhancement</li>
-                        <li><i class="fas fa-lightbulb"></i> Consider adding more relevant keywords and experience</li>
-                    {% else %}
-                        <li><i class="fas fa-times-circle"></i> Low keyword alignment with job requirements</li>
-                        <li><i class="fas fa-exclamation-triangle"></i> Limited skill match with position needs</li>
-                        <li><i class="fas fa-arrow-right"></i> Consider targeting positions that better match your background</li>
-                    {% endif %}
-                </ul>
+            <div class="analysis-sections">
+                <!-- AI Analysis Section -->
+                <div class="analysis-section full-width">
+                    <h3><i class="fas fa-robot"></i> AI Analysis</h3>
+                    <div class="analysis-content">
+                        {{ analysis | safe }}
+                    </div>
+                </div>
             </div>
 
             <div class="actions">

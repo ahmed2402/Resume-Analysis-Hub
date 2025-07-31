@@ -8,6 +8,8 @@ A sophisticated AI-powered web application that automatically categorizes resume
 - **Text Input**: Direct text input option for resume content
 - **AI-Powered Classification**: Uses trained machine learning models for accurate categorization
 - **Multi-Category Prediction**: Shows top 3 predicted job categories with confidence scores
+- **Job Description Analysis**: Compare resumes with job descriptions using AI-powered insights
+- **Dynamic Match Analysis**: Gemini API integration for personalized insights and recommendations
 - **Real-time Processing**: Instant analysis with beautiful loading animations
 - **Responsive Design**: Modern, professional UI that works on all devices
 - **Input Validation**: Comprehensive validation to ensure quality input
@@ -21,6 +23,7 @@ A sophisticated AI-powered web application that automatically categorizes resume
 - **PDF Processing**: PyPDF2
 - **Data Processing**: Pandas, NumPy
 - **Model Persistence**: Joblib
+- **AI Analysis**: Google Gemini API
 - **Styling**: Custom CSS with animations and responsive design
 
 ## 📁 Project Structure
@@ -56,6 +59,7 @@ Resume-Classifier/
 
 - Python 3.7 or higher
 - pip (Python package installer)
+- Google Gemini API key (optional, for enhanced job description analysis)
 
 ### Setup Instructions
 
@@ -98,7 +102,31 @@ Resume-Classifier/
    nltk.download('punkt_tab')
    ```
 
-5. **Set up models and datasets**
+5. **Set up Gemini API (Optional but Recommended)**
+   
+   For enhanced job description analysis with AI-powered insights:
+   
+   a. Get a Gemini API key:
+      - Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+      - Create a new API key
+   
+   b. Set the API key as an environment variable:
+      ```bash
+      # Windows
+      set GEMINI_API_KEY=your_api_key_here
+      
+      # macOS/Linux
+      export GEMINI_API_KEY=your_api_key_here
+      ```
+   
+   c. Or create a `.env` file in the project root:
+      ```
+      GEMINI_API_KEY=your_api_key_here
+      ```
+   
+   **Note**: If you don't set up the Gemini API key, the system will use fallback analysis which provides basic insights based on the match score.
+
+6. **Set up models and datasets**
    - Place your trained models in the `models/` directory
    - Ensure you have the required dataset files in `datasets/` directory
    - Models should include: `rf.pkl`, `tf_idf.pkl`, and `le.pkl`
@@ -109,7 +137,7 @@ Resume-Classifier/
 
 1. **Start the Flask server**
    ```bash
-   python app.py
+   python home.py
    ```
 
 2. **Access the application**
@@ -118,6 +146,7 @@ Resume-Classifier/
 
 ### Using the Application
 
+#### Resume Classification
 1. **Upload a PDF Resume**
    - Drag and drop a PDF file onto the upload area
    - Or click "Choose File" to select a PDF from your computer
@@ -133,6 +162,23 @@ Resume-Classifier/
    - See the top 3 predicted job categories
    - View confidence scores for each prediction
    - Optionally view the processed text
+
+#### Job Description Analysis
+1. **Navigate to Job Analysis**
+   - Click on "Job Description Analysis" from the home page
+
+2. **Input Resume and Job Description**
+   - Upload or paste your resume
+   - Upload or paste the job description
+
+3. **Get AI-Powered Insights**
+   - View the match score and level
+   - Get detailed analysis including:
+     - Key insights about the match
+     - Your strengths for the role
+     - Areas for improvement
+     - Missing skills
+     - Specific recommendations
 
 ## 📊 Machine Learning Pipeline
 

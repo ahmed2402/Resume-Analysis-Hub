@@ -48,47 +48,74 @@
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.score-description {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    opacity: 0.9;
-}
-
-.match-details {
-    background: #f8f9fa;
-    padding: 2rem;
-    border-radius: 10px;
+/* Analysis Sections Styles */
+.analysis-sections {
+    display: grid;
+    gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
-.match-details h3 {
+.analysis-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.analysis-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.analysis-content {
+    line-height: 0.6;
+    color: #2c3e50;
+    font-size: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Style bold headers */
+.analysis-content strong {
+    color: #667eea;
+    font-weight: 600;
+    display: block;
+    /* margin-top: 1rem; */
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.section-header {
+    color: #4f6bed;
+    font-size: 1.13rem;
+    font-weight: 700;
+    /* margin-bottom: 0.3rem; */
+    letter-spacing: 0.01em;
+}
+
+/* Style bullet points */
+.analysis-content ul {
+    margin: 0.2rem 0 1rem 1.5rem;
+    padding-left: 1.2rem;
+}
+
+.analysis-content li {
+    margin-bottom: 0.2rem;
+    line-height: 1.5;
+}
+
+.analysis-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.analysis-section h3 {
     color: #2c3e50;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-}
-
-.match-details ul {
-    list-style: none;
-    padding: 0;
-}
-
-.match-details li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e9ecef;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.match-details li:last-child {
-    border-bottom: none;
-}
-
-.match-details i {
-    color: #28a745;
-    width: 20px;
+    font-size: 1.2rem;
 }
 
 .actions {
@@ -161,6 +188,18 @@
         font-size: 3rem;
     }
 
+    .analysis-sections {
+        gap: 1rem;
+    }
+
+    .analysis-section {
+        padding: 1rem;
+    }
+
+    .analysis-section h3 {
+        font-size: 1.1rem;
+    }
+
     .actions {
         display: flex;
         flex-direction: column;
@@ -181,5 +220,10 @@
     
     .btn-primary, .btn-secondary {
         display: none;
+    }
+
+    .analysis-section {
+        break-inside: avoid;
+        border-left: 2px solid #667eea;
     }
 } 

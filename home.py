@@ -11,6 +11,13 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
+import google.generativeai as genai
+import json
+from dotenv import load_dotenv
+
+
+load_dotenv()
+genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -18,6 +25,7 @@ nltk.download('wordnet')
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
+
 
 
 rf = joblib.load("models/rf.pkl")
@@ -101,7 +109,48 @@ def calculate_similarity(resume_text, jd_text):
         else:
             raise e
 
+def generate_match_analysis(resume_text, jd_text, score):
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        prompt = f"""
+        Analyze the match between a resume and job description with a similarity score of {score}%.
 
+        Resume Text:
+        {resume_text[:2000]}...
+
+        Job Description:
+        {jd_text[:2000]}...
+
+        Return the analysis in this exact format (no extra dashes or blank lines):
+
+        [Section] Key Insights
+        - Insight 1
+        - Insight 2
+
+        [Section] Strengths
+        - Strength 1
+        - Strength 2
+
+        [Section] Areas for Improvement
+        - Area 1
+        - Area 2
+
+        [Section] Missing Skills
+        - Skill 1
+        - Skill 2
+
+        [Section] Recommendations
+        - Recommendation 1
+        - Recommendation 2
+
+        [Section] Overall Assessment
+        - Assessment 1
+        - Assessment 2
+
+        """
+        response = model.generate_content(prompt)
+        
+        return response.text
 
 
 @app.route('/')
@@ -242,10 +291,13 @@ def analyze_jd():
         match_level = "Poor Match"
         match_color = "#dc3545"
     
+    analysis = generate_match_analysis(jd_resume_text, jd_text, score)
+
     return render_template('job_desc/jd_result.html', 
                          score=round(score, 2), 
                          match_level=match_level, 
-                         match_color=match_color)
+                         match_color=match_color,
+                         analysis=analysis)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
