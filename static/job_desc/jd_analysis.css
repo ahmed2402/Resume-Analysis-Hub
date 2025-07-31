@@ -26,6 +26,18 @@ body {
     margin-bottom: 10px;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.08);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .jd-header p {
@@ -257,20 +269,20 @@ body {
 }
 
 /* Hover effects */
-.input-section:hover {
+/* .input-section:hover {
     border-color: #667eea;
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
-}
+} */
 
-.text-input:hover {
+/* .text-input:hover {
     border-color: #667eea;
-}
+} */
 
 /* Focus states */
-.input-section:focus-within {
+/* .input-section:focus-within {
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
+} */
 
 /* Accessibility */
 .upload-area:focus {

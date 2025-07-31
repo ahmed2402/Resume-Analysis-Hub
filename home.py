@@ -1,7 +1,6 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify, send_file
+from flask import Flask, render_template, request
 import joblib
 import PyPDF2
-import pdfplumber
 import os
 from werkzeug.utils import secure_filename
 from nltk.tokenize import word_tokenize
@@ -16,14 +15,10 @@ import re
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
-nltk.download('punkt_tab')
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
-# Create upload directory if it doesn't exist
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 rf = joblib.load("models/rf.pkl")
 tf_idf = joblib.load("models/tf_idf.pkl")
@@ -31,8 +26,6 @@ le = joblib.load("models/le.pkl")
 
 
 def preprocess_text(text):
-    print(f"Preprocessing text of length: {len(text)}")
-    
     # Convert to lowercase
     text = text.lower()
     text = re.sub('http\\S+\\s*', ' ', text)
@@ -42,35 +35,18 @@ def preprocess_text(text):
     text = re.sub('[^a-zA-Z0-9]+', ' ', text)
     text = re.sub(' +', ' ', text)
     
-    print(f"After regex cleaning, length: {len(text)}")
-    
     tokens = word_tokenize(text)
-    print(f"After tokenization, tokens: {len(tokens)}")
     
     stop_words = set(stopwords.words('english'))
     tokens = [word for word in tokens if word not in stop_words]
-    print(f"After stopword removal, tokens: {len(tokens)}")
     
     lemmatizer = WordNetLemmatizer()
     tokens = [lemmatizer.lemmatize(word) for word in tokens]
-    print(f"After lemmatization, tokens: {len(tokens)}")
     
     result = ' '.join(tokens)
-    print(f"Final processed text length: {len(result)}")
     return result
 
 def extract_text_from_pdf(file_path):
-    try:
-        text = ""
-        with open(file_path, 'rb') as f:
-            reader = PyPDF2.PdfReader(f)
-            for page in reader.pages:
-                text += page.extract_text()
-        return text
-    except Exception as e:
-        return f"[Error extracting text: {str(e)}]"
-
-def extract_text_from_pdf_jd(file_path):
     try:
         text = ""
         with open(file_path, 'rb') as f:
@@ -94,9 +70,9 @@ def validate_input(text):
         return False, "Please provide meaningful Resume instead of repetitive characters."
     
     random_patterns = [
-        r'[a-z]{15,}',  # Very long sequences of random letters (increased threshold)
-        r'[0-9]{8,}',   # Long sequences of numbers
-        r'[!@#$%^&*()]{5,}',  # Long sequences of special characters
+        r'[a-z]{15,}',
+        r'[0-9]{8,}',
+        r'[!@#$%^&*()]{5,}',
     ]
     
     for pattern in random_patterns:
@@ -106,12 +82,9 @@ def validate_input(text):
     return True, "" 
 
 def calculate_similarity(resume_text, jd_text):
-    
-    # Preprocess both texts
     resume_processed = preprocess_text(resume_text)
     jd_processed = preprocess_text(jd_text)
     
-    # Check if processed texts are empty or too short
     if len(resume_processed.strip()) < 10 or len(jd_processed.strip()) < 10:
         return 0.0
     
@@ -120,11 +93,9 @@ def calculate_similarity(resume_text, jd_text):
     try:
         texts = [resume_processed, jd_processed]
         vectors = jd_tfidf.fit_transform(texts)
-        
         similarity = cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
         return round(similarity * 100, 2)
     except ValueError as e:
-        # Handle empty vocabulary error
         if "empty vocabulary" in str(e):
             return 0.0
         else:
@@ -133,12 +104,10 @@ def calculate_similarity(resume_text, jd_text):
 
 
 
-# Home page route
 @app.route('/')
 def home():
     return render_template('home/home.html')
 
-# Resume category prediction routes
 @app.route('/resume-category')
 def resume_category():
     return render_template('resume_classifier/index.html')
@@ -193,7 +162,6 @@ def analyze_resume():
                          predictions=top_3_predictions,
                          text=processed_text)
 
-# JD score calculation routes
 @app.route('/jd-score')
 def jd_score():
     return render_template('job_desc/jd_analysis.html')
@@ -202,8 +170,6 @@ def jd_score():
 def analyze_jd():
     jd_resume_text = ""
     jd_text = ""
-    
-
     
     # Handle resume input (text or file)
     if 'jd_resume_text' in request.form and request.form['jd_resume_text'].strip():
@@ -216,7 +182,7 @@ def analyze_jd():
                     filename = secure_filename(file.filename)
                     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                     file.save(file_path)
-                    jd_resume_text = extract_text_from_pdf_jd(file_path)
+                    jd_resume_text = extract_text_from_pdf(file_path)
                     os.remove(file_path)
                 except Exception as e:
                     return render_template('job_desc/jd_analysis.html', error=f"Error processing resume file: {str(e)}")
@@ -238,7 +204,7 @@ def analyze_jd():
                     filename = secure_filename(file.filename)
                     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                     file.save(file_path)
-                    jd_text = extract_text_from_pdf_jd(file_path)
+                    jd_text = extract_text_from_pdf(file_path)
                     os.remove(file_path)
                 except Exception as e:
                     return render_template('job_desc/jd_analysis.html', error=f"Error processing job description file: {str(e)}")
@@ -259,8 +225,6 @@ def analyze_jd():
     
     if jd_text.startswith("[No text extracted") or jd_text.startswith("[Error extracting"):
         return render_template('job_desc/jd_analysis.html', error="Could not extract text from job description PDF. Please try a different file or paste text directly.")
-    
-
     
     score = calculate_similarity(jd_resume_text, jd_text)
     

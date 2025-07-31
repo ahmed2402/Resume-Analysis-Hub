@@ -33,6 +33,7 @@ body {
     margin-bottom: 20px;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    animation: pulse 2s ease-in-out infinite;
 }
 
 .home-header p {
