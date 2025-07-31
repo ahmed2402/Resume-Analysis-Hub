@@ -1,19 +1,29 @@
-# Resume Category Classifier
+# Resume Analysis Hub
 
-A sophisticated AI-powered web application that automatically categorizes resumes into different job categories using machine learning. The application provides an intuitive interface for uploading PDF resumes or pasting resume text, then uses a trained Random Forest model to predict the most suitable job categories with confidence scores.
+A comprehensive AI-powered web application that provides two main functionalities: **Resume Category Classification** and **Job Description Matching Analysis**. Built with Flask and powered by machine learning models, this application helps users understand their professional profile and assess job compatibility with AI-driven insights.
 
 ## 🚀 Features
 
+### Resume Category Predictor
 - **PDF Resume Upload**: Drag-and-drop interface for uploading PDF resumes
 - **Text Input**: Direct text input option for resume content
-- **AI-Powered Classification**: Uses trained machine learning models for accurate categorization
+- **AI-Powered Classification**: Uses trained Random Forest model for accurate categorization
 - **Multi-Category Prediction**: Shows top 3 predicted job categories with confidence scores
-- **Job Description Analysis**: Compare resumes with job descriptions using AI-powered insights
-- **Dynamic Match Analysis**: Gemini API integration for personalized insights and recommendations
 - **Real-time Processing**: Instant analysis with beautiful loading animations
+
+### Job Description Score Analysis
+- **Dual Input Support**: Upload or paste both resume and job description
+- **Similarity Scoring**: Calculate compatibility scores using TF-IDF and cosine similarity
+- **AI-Powered Insights**: Gemini API integration for personalized analysis and recommendations
+- **Comprehensive Analysis**: Get detailed insights including strengths, areas for improvement, and recommendations
+- **Match Level Assessment**: Visual indicators for Excellent, Good, Fair, or Poor matches
+
+### General Features
 - **Responsive Design**: Modern, professional UI that works on all devices
 - **Input Validation**: Comprehensive validation to ensure quality input
 - **Text Preprocessing**: Advanced NLP preprocessing for better accuracy
+- **Security**: Local processing with temporary file storage
+- **Error Handling**: Clear error messages with helpful guidance
 
 ## 🛠️ Technology Stack
 
@@ -30,27 +40,42 @@ A sophisticated AI-powered web application that automatically categorizes resume
 
 ```
 Resume-Classifier/
-├── app.py                          # Main Flask application
-├── synthetic.py                    # Synthetic data generation script
-├── eda.ipynb                      # Exploratory Data Analysis notebook
-├── README.md                      # Project documentation
-├── .gitignore                     # Git ignore file
+├── home.py                         # Main Flask application
+├── README.md                       # Project documentation
+├── .gitignore                      # Git ignore file
+├── uploads/                        # Temporary file upload directory
 ├── static/
-│   └── style.css                  # Custom CSS styles
+│   ├── shared.css                  # Shared CSS styles
+│   ├── home/
+│   │   └── home.css               # Home page styles
+│   ├── resume_classifier/
+│   │   └── resume_classifier.css  # Resume classifier styles
+│   ├── job_desc/
+│   │   └── job_desc.css           # Job description styles
+│   └── js/
+│       └── home.js                # Home page JavaScript
 ├── templates/
-│   ├── index.html                 # Main upload interface
-│   └── result.html                # Results display page
-├── models/                        # Trained ML models (gitignored)
+│   ├── home/
+│   │   └── home.html              # Main landing page
+│   ├── resume_classifier/
+│   │   ├── index.html             # Resume upload interface
+│   │   └── result.html            # Classification results
+│   └── job_desc/
+│       ├── jd_analysis.html       # Job description analysis interface
+│       └── jd_result.html         # Analysis results
+├── models/                         # Trained ML models
 │   ├── rf.pkl                     # Random Forest model
 │   ├── tf_idf.pkl                 # TF-IDF vectorizer
 │   ├── le.pkl                     # Label encoder
 │   └── catboost_model.pkl         # CatBoost model (alternative)
-├── datasets/                      # Training datasets (gitignored)
+├── datasets/                       # Training datasets
 │   ├── UpdatedResumeDataSet.csv   # Main dataset
 │   ├── cleaned_resume.csv         # Cleaned dataset
 │   ├── synthetic_resume_dataset.csv
 │   └── synthetic_resume_dataset2.csv
-└── catboost_info/                 # CatBoost training logs (gitignored)
+└── model_training/                 # Model training scripts
+    ├── eda.ipynb                  # Exploratory Data Analysis notebook
+    └── synthetic.py               # Synthetic data generation script
 ```
 
 ## 🚀 Installation
@@ -59,7 +84,7 @@ Resume-Classifier/
 
 - Python 3.7 or higher
 - pip (Python package installer)
-- Google Gemini API key (optional, for enhanced job description analysis)
+- Google Gemini API key (for enhanced job description analysis)
 
 ### Setup Instructions
 
@@ -99,37 +124,22 @@ Resume-Classifier/
    nltk.download('punkt')
    nltk.download('stopwords')
    nltk.download('wordnet')
-   nltk.download('punkt_tab')
    ```
 
-5. **Set up Gemini API (Optional but Recommended)**
-   
-   For enhanced job description analysis with AI-powered insights:
+5. **Set up Gemini API (Required for Job Description Analysis)**
    
    a. Get a Gemini API key:
       - Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
       - Create a new API key
    
-   b. Set the API key as an environment variable:
-      ```bash
-      # Windows
-      set GEMINI_API_KEY=your_api_key_here
-      
-      # macOS/Linux
-      export GEMINI_API_KEY=your_api_key_here
-      ```
-   
-   c. Or create a `.env` file in the project root:
+   b. Create a `.env` file in the project root:
       ```
       GEMINI_API_KEY=your_api_key_here
       ```
-   
-   **Note**: If you don't set up the Gemini API key, the system will use fallback analysis which provides basic insights based on the match score.
 
-6. **Set up models and datasets**
-   - Place your trained models in the `models/` directory
-   - Ensure you have the required dataset files in `datasets/` directory
-   - Models should include: `rf.pkl`, `tf_idf.pkl`, and `le.pkl`
+6. **Ensure models and datasets are available**
+   - The `models/` directory should contain: `rf.pkl`, `tf_idf.pkl`, and `le.pkl`
+   - The `datasets/` directory should contain the training datasets
 
 ## 🎯 Usage
 
@@ -146,13 +156,13 @@ Resume-Classifier/
 
 ### Using the Application
 
-#### Resume Classification
-1. **Upload a PDF Resume**
-   - Drag and drop a PDF file onto the upload area
-   - Or click "Choose File" to select a PDF from your computer
+#### Resume Category Predictor
+1. **Navigate to Resume Category Predictor**
+   - Click on "Resume Category Predictor" from the home page
 
-2. **Or Paste Resume Text**
-   - Type or paste your resume text directly into the text area
+2. **Input Resume**
+   - **Option 1**: Upload a PDF resume by dragging and dropping or clicking "Choose File"
+   - **Option 2**: Paste your resume text directly into the text area
 
 3. **Analyze**
    - Click "Analyze Resume" to process your input
@@ -163,22 +173,23 @@ Resume-Classifier/
    - View confidence scores for each prediction
    - Optionally view the processed text
 
-#### Job Description Analysis
-1. **Navigate to Job Analysis**
-   - Click on "Job Description Analysis" from the home page
+#### Job Description Score Analysis
+1. **Navigate to Job Description Score**
+   - Click on "Job Description Score" from the home page
 
 2. **Input Resume and Job Description**
-   - Upload or paste your resume
-   - Upload or paste the job description
+   - **Resume**: Upload a PDF or paste text
+   - **Job Description**: Upload a PDF or paste text
 
 3. **Get AI-Powered Insights**
-   - View the match score and level
+   - View the match score and level (Excellent/Good/Fair/Poor)
    - Get detailed analysis including:
      - Key insights about the match
      - Your strengths for the role
      - Areas for improvement
      - Missing skills
      - Specific recommendations
+     - Overall assessment
 
 ## 📊 Machine Learning Pipeline
 
@@ -197,19 +208,23 @@ Resume-Classifier/
 - **Cross-validation**: Ensures model robustness
 - **Hyperparameter Tuning**: Optimized for accuracy
 
+### Similarity Analysis
+- **TF-IDF Vectorization**: For both resume and job description
+- **Cosine Similarity**: Calculate match percentage
+- **AI Analysis**: Gemini API for detailed insights
+
 ## 🎨 UI/UX Features
 
 ### Design Highlights
-- **Modern Gradient Background**: Animated blue gradient with floating particles
-- **Glass Morphism**: Translucent cards with backdrop blur effects
-- **Smooth Animations**: CSS transitions and keyframe animations
-- **Interactive Elements**: Hover effects, ripple animations, and micro-interactions
+- **Modern Interface**: Clean, professional design with glass morphism effects
 - **Responsive Layout**: Mobile-first design approach
+- **Smooth Animations**: CSS transitions and keyframe animations
+- **Interactive Elements**: Hover effects and micro-interactions
+- **Loading States**: Beautiful spinner animations during processing
 
 ### User Experience
 - **Drag & Drop**: Intuitive file upload interface
 - **Real-time Validation**: Immediate feedback on input quality
-- **Loading States**: Beautiful spinner animations during processing
 - **Error Handling**: Clear error messages with helpful guidance
 - **Accessibility**: Keyboard navigation and screen reader support
 
@@ -256,8 +271,8 @@ The model can classify resumes into various job categories including:
 ## 🧪 Testing
 
 ### Input Validation Tests
-- Resume length validation
-- Content quality checks
+- Resume length validation (minimum 100 characters)
+- Content quality checks (no repetitive characters)
 - File format verification
 - Special character handling
 
@@ -267,15 +282,32 @@ The model can classify resumes into various job categories including:
 - Memory usage optimization
 - Cross-validation results
 
+## 🔧 Configuration
+
+### Environment Variables
+- `GEMINI_API_KEY`: Required for job description analysis features
+
+### Model Files
+- `models/rf.pkl`: Random Forest classifier
+- `models/tf_idf.pkl`: TF-IDF vectorizer
+- `models/le.pkl`: Label encoder
+
+
 
 ## 👥 Authors
 
-- **Ahmed Raza**  - [Github](https://github.com/ahmed2402), [Linkedln](https://www.linkedin.com/in/ahmvd/)
-
-
+- **Ahmed Raza** - [Github](https://github.com/ahmed2402), [LinkedIn](https://www.linkedin.com/in/ahmvd/)
 
 ## 📞 Support
 
 For support and questions:
 - Create an issue in the GitHub repository
 - Contact: ahmedraza312682@gmail.com
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
