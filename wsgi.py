@@ -2,7 +2,7 @@ import sys
 import os
 
 # Add your project directory to the sys.path
-path = 'https://github.com/ahmed2402/Resume-Analysis-Hub'
+path = '/home/ahmvd/Resume-Analysis-Hub'
 if path not in sys.path:
     sys.path.append(path)
 
