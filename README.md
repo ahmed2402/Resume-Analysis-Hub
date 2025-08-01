@@ -41,52 +41,61 @@ A comprehensive AI-powered web application that provides two main functionalitie
 ```
 Resume-Classifier/
 ├── home.py                         # Main Flask application
-├── README.md                       # Project documentation
-├── .gitignore                      # Git ignore file
-├── uploads/                        # Temporary file upload directory
+├── Procfile                       # Railway deployment configuration
+├── requirements.txt               # Python dependencies
+├── runtime.txt                   # Python version specification
+├── README.md                     # Project documentation
+├── RAILWAY_DEPLOYMENT_GUIDE.md   # Railway deployment guide
+├── uploads/                      # Temporary file upload directory
 ├── static/
-│   ├── shared.css                  # Shared CSS styles
+│   ├── shared.css                # Shared CSS styles
 │   ├── home/
-│   │   └── home.css               # Home page styles
+│   │   └── home.css             # Home page styles
 │   ├── resume_classifier/
-│   │   └── resume_classifier.css  # Resume classifier styles
+│   │   └── resume.css           # Resume classifier styles
 │   ├── job_desc/
-│   │   └── job_desc.css           # Job description styles
+│   │   ├── jd_analysis.css      # Job description analysis styles
+│   │   └── jd_result.css        # Job description result styles
 │   └── js/
-│       └── home.js                # Home page JavaScript
+│       ├── home.js              # Home page JavaScript
+│       ├── resume_classifier.js # Resume classifier JavaScript
+│       ├── resume_result.js     # Resume result JavaScript
+│       ├── jd_analysis.js       # Job description analysis JavaScript
+│       └── jd_result.js         # Job description result JavaScript
 ├── templates/
 │   ├── home/
-│   │   └── home.html              # Main landing page
+│   │   └── home.html            # Main landing page
 │   ├── resume_classifier/
-│   │   ├── index.html             # Resume upload interface
-│   │   └── result.html            # Classification results
+│   │   ├── index.html           # Resume upload interface
+│   │   └── result.html          # Classification results
 │   └── job_desc/
-│       ├── jd_analysis.html       # Job description analysis interface
-│       └── jd_result.html         # Analysis results
-├── models/                         # Trained ML models
-│   ├── rf.pkl                     # Random Forest model
-│   ├── tf_idf.pkl                 # TF-IDF vectorizer
-│   ├── le.pkl                     # Label encoder
-│   └── catboost_model.pkl         # CatBoost model (alternative)
-├── datasets/                       # Training datasets
-│   ├── UpdatedResumeDataSet.csv   # Main dataset
-│   ├── cleaned_resume.csv         # Cleaned dataset
+│       ├── jd_analysis.html     # Job description analysis interface
+│       └── jd_result.html       # Analysis results
+├── models/                       # Trained ML models
+│   ├── rf.pkl                   # Random Forest model
+│   ├── tf_idf.pkl               # TF-IDF vectorizer
+│   ├── le.pkl                   # Label encoder
+│   └── catboost_model.pkl       # CatBoost model (alternative)
+├── datasets/                     # Training datasets
+│   ├── UpdatedResumeDataSet.csv # Main dataset
+│   ├── cleaned_resume.csv       # Cleaned dataset
 │   ├── synthetic_resume_dataset.csv
 │   └── synthetic_resume_dataset2.csv
-└── model_training/                 # Model training scripts
-    ├── eda.ipynb                  # Exploratory Data Analysis notebook
-    └── synthetic.py               # Synthetic data generation script
+└── model_training/               # Model training scripts
+    ├── eda.ipynb                # Exploratory Data Analysis notebook
+    └── synthetic.py             # Synthetic data generation script
 ```
 
-## 🚀 Installation
+## 🚀 Installation & Deployment
 
-### Prerequisites
+### Option 1: Local Development
 
+#### Prerequisites
 - Python 3.7 or higher
 - pip (Python package installer)
 - Google Gemini API key (for enhanced job description analysis)
 
-### Setup Instructions
+#### Setup Instructions
 
 1. **Clone the repository**
    ```bash
@@ -107,15 +116,7 @@ Resume-Classifier/
 
 3. **Install required dependencies**
    ```bash
-   pip install flask
-   pip install scikit-learn
-   pip install nltk
-   pip install PyPDF2
-   pip install pandas
-   pip install numpy
-   pip install joblib
-   pip install google-generativeai
-   pip install python-dotenv
+   pip install -r requirements.txt
    ```
 
 4. **Download NLTK data**
@@ -137,22 +138,46 @@ Resume-Classifier/
       GEMINI_API_KEY=your_api_key_here
       ```
 
-6. **Ensure models and datasets are available**
-   - The `models/` directory should contain: `rf.pkl`, `tf_idf.pkl`, and `le.pkl`
-   - The `datasets/` directory should contain the training datasets
-
-## 🎯 Usage
-
-### Running the Application
-
-1. **Start the Flask server**
+6. **Run the application**
    ```bash
    python home.py
    ```
 
-2. **Access the application**
-   - Open your web browser
-   - Navigate to `http://localhost:5000`
+### Option 2: Railway Deployment (Recommended)
+
+#### Prerequisites
+- Railway account (free tier available)
+- GitHub account
+- Google Gemini API key
+
+#### Deployment Steps
+
+1. **Push your code to GitHub**
+   - Create a new repository on GitHub
+   - Push your project files to the repository
+
+2. **Deploy on Railway**
+   - Visit [railway.app](https://railway.app)
+   - Sign in with your GitHub account
+   - Click "New Project" → "Deploy from GitHub repo"
+   - Select your repository
+
+3. **Configure Environment Variables**
+   - In Railway dashboard, go to **Variables** tab
+   - Add: `GEMINI_API_KEY` = your Gemini API key
+
+4. **Access your app**
+   - Railway will provide a URL like: `https://your-app-name.railway.app`
+   - Your app will be automatically deployed and updated
+
+For detailed Railway deployment instructions, see [RAILWAY_DEPLOYMENT_GUIDE.md](RAILWAY_DEPLOYMENT_GUIDE.md)
+
+## 🎯 Usage
+
+### Accessing the Application
+
+- **Railway Deployment**: Visit your Railway app URL (e.g., `https://your-app-name.railway.app`)
+- **Local Development**: Run `python home.py` and visit `http://localhost:5000`
 
 ### Using the Application
 
