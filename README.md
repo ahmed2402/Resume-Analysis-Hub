@@ -143,40 +143,11 @@ Resume-Classifier/
    python home.py
    ```
 
-### Option 2: Railway Deployment (Recommended)
-
-#### Prerequisites
-- Railway account (free tier available)
-- GitHub account
-- Google Gemini API key
-
-#### Deployment Steps
-
-1. **Push your code to GitHub**
-   - Create a new repository on GitHub
-   - Push your project files to the repository
-
-2. **Deploy on Railway**
-   - Visit [railway.app](https://railway.app)
-   - Sign in with your GitHub account
-   - Click "New Project" → "Deploy from GitHub repo"
-   - Select your repository
-
-3. **Configure Environment Variables**
-   - In Railway dashboard, go to **Variables** tab
-   - Add: `GEMINI_API_KEY` = your Gemini API key
-
-4. **Access your app**
-   - Railway will provide a URL like: `https://your-app-name.railway.app`
-   - Your app will be automatically deployed and updated
-
-For detailed Railway deployment instructions, see [RAILWAY_DEPLOYMENT_GUIDE.md](RAILWAY_DEPLOYMENT_GUIDE.md)
-
 ## 🎯 Usage
 
 ### Accessing the Application
 
-- **Railway Deployment**: Visit your Railway app URL (e.g., `https://your-app-name.railway.app`)
+- **Railway Deployment**: Visit your Railway app URL (e.g., `resume-analysis-hub-production.up.railway.app`)
 - **Local Development**: Run `python home.py` and visit `http://localhost:5000`
 
 ### Using the Application
